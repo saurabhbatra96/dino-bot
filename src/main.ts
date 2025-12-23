@@ -15,6 +15,7 @@ const ga = new GeneticAlgorithm(POPULATION_SIZE, MUTATION_RATE);
 const genCountEl = document.getElementById('gen-count')!;
 const aliveCountEl = document.getElementById('alive-count')!;
 const bestScoreEl = document.getElementById('best-score')!;
+const currentNameEl = document.getElementById('current-name')!;
 const speedRange = document.getElementById('speed-range') as HTMLInputElement;
 const speedValEl = document.getElementById('speed-val')!;
 const toggleBtn = document.getElementById('toggle-train')!;
@@ -38,8 +39,13 @@ let isManualMode = false;
 let bestEverWeights: any = null;
 let bestEverScore = 0;
 let bestEverGen = 1;
+let bestEverName: string | null = null;
+let bestEverId: string | null = null;
 
 // Initialize
+bestEverName = generateName();
+currentNameEl.textContent = bestEverName;
+
 const initialDinos = ga.createInitialPopulation(game.canvas.height);
 initialDinos.forEach(d => game.addDino(d));
 
@@ -122,6 +128,12 @@ game.onGameOver = (_bestScore) => {
     nextGen.forEach(d => game.addDino(d));
     game.reset();
     genCountEl.textContent = ga.generation.toString();
+
+    // New generation, new name (unless we are in a special load/save state)
+    // Actually, normally we might want to keep the name for the "lineage", 
+    // but the prompt says "new name if the model is not saved".
+    // For now, let's keep the name until they "Award" or "Decommission".
+
     game.isPaused = false;
   }
 };
@@ -254,17 +266,20 @@ function loadModel(id: string, type: 'heaven' | 'hell') {
   bestEverScore = model.score;
   bestEverWeights = weights;
   bestEverGen = model.generation;
+  bestEverName = model.name;
+  bestEverId = model.id;
+  currentNameEl.textContent = bestEverName;
+  game.bestScore = model.score;
+  bestScoreEl.textContent = Math.round(model.score).toString();
 
   if (isManualMode) {
     isManualMode = false;
     manualToggle.checked = false;
     hintsEl.classList.add('hidden');
-    toggleBtn.textContent = 'Start Training';
     genCountEl.parentElement!.style.visibility = 'visible';
   }
 
-  game.isPaused = false;
-  toggleBtn.textContent = 'Pause';
+  toggleBtn.textContent = 'Resume';
 }
 
 // Event Listeners
@@ -302,9 +317,15 @@ function saveCurrentBest(type: 'heaven' | 'hell') {
     return;
   }
 
+  if (bestEverId) {
+    // Delete from both boards to ensure it's "moved" or "updated"
+    StorageManager.deleteModel(bestEverId, 'heaven');
+    StorageManager.deleteModel(bestEverId, 'hell');
+  }
+
   const model: ModelData = {
     id: Date.now().toString(),
-    name: generateName(),
+    name: bestEverName || generateName(),
     score: bestEverScore,
     generation: bestEverGen,
     timestamp: Date.now(),
@@ -329,8 +350,11 @@ function saveCurrentBest(type: 'heaven' | 'hell') {
   bestEverWeights = null;
   bestEverScore = 0;
   bestEverGen = 1;
+  bestEverName = generateName();
+  bestEverId = null;
 
   // Update UI
+  currentNameEl.textContent = bestEverName;
   genCountEl.textContent = '1';
   bestScoreEl.textContent = '0';
   aliveCountEl.textContent = POPULATION_SIZE.toString();
