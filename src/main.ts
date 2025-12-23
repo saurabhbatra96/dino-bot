@@ -165,5 +165,120 @@ speedRange.addEventListener('input', () => {
 
 window.addEventListener('resize', () => game.resize());
 
+// Imports for utilities
+import { generateName } from './utils/names';
+import { StorageManager, type ModelData } from './utils/storage';
+
+// Existing DOM Elements
+// ...
+
+const saveBtn = document.getElementById('save-best')!;
+const leaderboardBody = document.querySelector('#leaderboard-table tbody')!;
+const emptyMsg = document.getElementById('empty-leaderboard-msg')!;
+
+// ...
+
+function renderLeaderboard() {
+  const models = StorageManager.getModels();
+  leaderboardBody.innerHTML = '';
+
+  if (models.length === 0) {
+    emptyMsg.classList.remove('hidden');
+    return;
+  }
+
+  emptyMsg.classList.add('hidden');
+  models.forEach(model => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${model.name}</td>
+      <td>${Math.round(model.score)}</td>
+      <td>${model.generation}</td>
+      <td>
+        <button class="action-btn load-btn" data-id="${model.id}">Load</button>
+        <button class="action-btn delete-btn" data-id="${model.id}">✕</button>
+      </td>
+    `;
+    leaderboardBody.appendChild(row);
+  });
+
+  // Attach event listeners to new buttons
+  document.querySelectorAll('.load-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const id = (e.target as HTMLElement).dataset.id!;
+      loadModel(id);
+    });
+  });
+
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const id = (e.target as HTMLElement).dataset.id!;
+      StorageManager.deleteModel(id);
+      renderLeaderboard();
+    });
+  });
+}
+
+function loadModel(id: string) {
+  const models = StorageManager.getModels();
+  const model = models.find(m => m.id === id);
+  if (!model) return;
+
+  const weights = model.weights;
+  const newPop = ga.loadGenome(weights, game.canvas.height);
+
+  game.isPaused = true;
+  game.reset();
+  game.dinos = [];
+  newPop.forEach(d => game.addDino(d));
+
+  // Set generation count to the saved model's generation or continue incrementing?
+  // Let's set it to the saved generation so user knows context
+  ga.generation = model.generation;
+  genCountEl.textContent = ga.generation.toString();
+
+  // Reset manual mode if active
+  if (isManualMode) {
+    isManualMode = false;
+    manualToggle.checked = false;
+    hintsEl.classList.add('hidden');
+    toggleBtn.textContent = 'Start Training';
+    genCountEl.parentElement!.style.visibility = 'visible';
+  }
+
+  game.isPaused = false;
+  toggleBtn.textContent = 'Pause';
+}
+
+saveBtn.addEventListener('click', () => {
+  // Find best dino
+  const bestDino = game.dinos.reduce((best, current) =>
+    (current.score > best.score) ? current : best
+    , game.dinos[0]);
+
+  if (!bestDino) return;
+
+  const weights = ga.getWeights(bestDino);
+  if (!weights) {
+    alert("Cannot save manual player or invalid dino.");
+    return;
+  }
+
+  const model: ModelData = {
+    id: Date.now().toString(),
+    name: generateName(),
+    score: bestDino.score, // Use current score as best score
+    generation: ga.generation,
+    timestamp: Date.now(),
+    weights: weights
+  };
+
+  StorageManager.saveModel(model);
+  renderLeaderboard();
+});
+
+// Initial Render
+renderLeaderboard();
+
 // Start the loop
 loop();

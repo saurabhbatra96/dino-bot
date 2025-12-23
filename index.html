@@ -56,6 +56,25 @@
       <div id="manual-hints" class="hints hidden">
         <p>Controls: <span>SPACE / W</span> JUMP | <span>DOWN / S</span> DUCK</p>
       </div>
+      <div class="leaderboard-container">
+        <h3>🏆 Hall of Fame</h3>
+        <div class="leaderboard-scroll">
+          <table id="leaderboard-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Score</th>
+                <th>Gen</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Leaderboard rows will be inserted here -->
+            </tbody>
+          </table>
+          <p id="empty-leaderboard-msg" class="hidden">No saved models yet.</p>
+        </div>
+      </div>
     </div>
   </div>
   <script type="module" src="src/main.ts"></script>
