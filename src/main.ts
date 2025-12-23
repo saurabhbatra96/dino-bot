@@ -1,6 +1,8 @@
 import './style.css';
 import { Game } from './game/engine';
 import { GeneticAlgorithm } from './ai/ga';
+import { generateName } from './utils/names';
+import { StorageManager, type ModelData } from './utils/storage';
 
 const POPULATION_SIZE = 50;
 const MUTATION_RATE = 0.1;
@@ -18,9 +20,23 @@ const toggleBtn = document.getElementById('toggle-train')!;
 const manualToggle = document.getElementById('manual-mode-toggle') as HTMLInputElement;
 const overlayEl = document.getElementById('game-over')!;
 const hintsEl = document.getElementById('manual-hints')!;
+// New Board Elements
+const btnAward = document.getElementById('btn-award')!;
+const btnDecommission = document.getElementById('btn-decommission')!;
+
+const leaderboardBody = document.querySelector('#leaderboard-table tbody')!;
+const emptyLeaderboardMsg = document.getElementById('empty-leaderboard-msg')!;
+
+const loserboardBody = document.querySelector('#loserboard-table tbody')!;
+const emptyLoserboardMsg = document.getElementById('empty-loserboard-msg')!;
 
 let simSpeed = 1;
 let isManualMode = false;
+
+// Track best model ever seen in this session
+let bestEverWeights: any = null;
+let bestEverScore = 0;
+let bestEverGen = 1;
 
 // Initialize
 const initialDinos = ga.createInitialPopulation(game.canvas.height);
@@ -70,6 +86,16 @@ function loop() {
 
   game.draw();
 
+  // Real-time tracking of best dinosaur ever seen
+  if (!isManualMode) {
+    const currentBest = game.dinos.reduce((best, curr) => curr.score > best.score ? curr : best, game.dinos[0]);
+    if (currentBest && currentBest.score > bestEverScore) {
+      bestEverScore = Math.round(currentBest.score);
+      bestEverWeights = ga.getWeights(currentBest);
+      bestEverGen = ga.generation;
+    }
+  }
+
   aliveCountEl.textContent = game.dinos.filter(d => d.alive).length.toString();
   bestScoreEl.textContent = Math.round(game.bestScore).toString();
 
@@ -78,7 +104,6 @@ function loop() {
 
 game.onGameOver = (_bestScore) => {
   if (isManualMode) {
-    // Show game over overlay for human player
     overlayEl.querySelector('h2')!.textContent = 'GAME OVER';
     overlayEl.querySelector('p')!.textContent = 'Wait for reset...';
     overlayEl.classList.remove('hidden');
@@ -91,7 +116,6 @@ game.onGameOver = (_bestScore) => {
       overlayEl.classList.add('hidden');
     }, 1000);
   } else {
-    // Seamless transition for AI
     const nextGen = ga.evolve(game.dinos, game.canvas.height);
     game.dinos = [];
     nextGen.forEach(d => game.addDino(d));
@@ -100,6 +124,91 @@ game.onGameOver = (_bestScore) => {
     game.isPaused = false;
   }
 };
+
+function renderBoards() {
+  renderSingleBoard('heaven');
+  renderSingleBoard('hell');
+}
+
+function renderSingleBoard(type: 'heaven' | 'hell') {
+  const models = StorageManager.getModels(type);
+  const tbody = type === 'heaven' ? leaderboardBody : loserboardBody;
+  const msg = type === 'heaven' ? emptyLeaderboardMsg : emptyLoserboardMsg;
+
+  if (!tbody || !msg) return;
+
+  tbody.innerHTML = '';
+
+  if (models.length === 0) {
+    msg.style.display = 'block';
+    return;
+  }
+
+  msg.style.display = 'none';
+  models.forEach(model => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>${model.name}</td>
+        <td>${Math.round(model.score)}</td>
+        <td>${model.generation}</td>
+        <td>
+            <button class="action-btn load-btn" data-id="${model.id}" data-type="${type}">Load</button>
+            <button class="action-btn delete-btn" data-id="${model.id}" data-type="${type}">✕</button>
+        </td>
+        `;
+    tbody.appendChild(row);
+  });
+
+  const loadBtns = tbody.querySelectorAll('.load-btn');
+  loadBtns.forEach(btn => {
+    (btn as HTMLElement).addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      loadModel(target.dataset.id!, target.dataset.type as any);
+    });
+  });
+
+  const delBtns = tbody.querySelectorAll('.delete-btn');
+  delBtns.forEach(btn => {
+    (btn as HTMLElement).addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      StorageManager.deleteModel(target.dataset.id!, target.dataset.type as any);
+      renderBoards();
+    });
+  });
+}
+
+function loadModel(id: string, type: 'heaven' | 'hell') {
+  const models = StorageManager.getModels(type);
+  const model = models.find(m => m.id === id);
+  if (!model) return;
+
+  const weights = model.weights;
+  const newPop = ga.loadGenome(weights, game.canvas.height);
+
+  game.isPaused = true;
+  game.reset();
+  game.dinos = [];
+  newPop.forEach(d => game.addDino(d));
+
+  ga.generation = model.generation;
+  genCountEl.textContent = ga.generation.toString();
+
+  // Sync session best with loaded model
+  bestEverScore = model.score;
+  bestEverWeights = weights;
+  bestEverGen = model.generation;
+
+  if (isManualMode) {
+    isManualMode = false;
+    manualToggle.checked = false;
+    hintsEl.classList.add('hidden');
+    toggleBtn.textContent = 'Start Training';
+    genCountEl.parentElement!.style.visibility = 'visible';
+  }
+
+  game.isPaused = false;
+  toggleBtn.textContent = 'Pause';
+}
 
 // Event Listeners
 toggleBtn.addEventListener('click', () => {
@@ -130,13 +239,56 @@ manualToggle.addEventListener('change', () => {
   overlayEl.classList.add('hidden');
 });
 
-// Keyboard controls
+function saveCurrentBest(type: 'heaven' | 'hell') {
+  if (!bestEverWeights) {
+    alert("No model data available to save yet. Let the dinos run for a bit!");
+    return;
+  }
+
+  const model: ModelData = {
+    id: Date.now().toString(),
+    name: generateName(),
+    score: bestEverScore,
+    generation: bestEverGen,
+    timestamp: Date.now(),
+    weights: bestEverWeights
+  };
+
+  StorageManager.saveModel(model, type);
+  renderBoards();
+
+  // Reset Game Session
+  game.isPaused = true;
+  game.reset();
+  game.bestScore = 0; // Explicitly reset engine best score
+
+  // Reset GA and Population
+  ga.generation = 1;
+  game.dinos = [];
+  const newPop = ga.createInitialPopulation(game.canvas.height);
+  newPop.forEach(d => game.addDino(d));
+
+  // Reset Session Bests
+  bestEverWeights = null;
+  bestEverScore = 0;
+  bestEverGen = 1;
+
+  // Update UI
+  genCountEl.textContent = '1';
+  bestScoreEl.textContent = '0';
+  aliveCountEl.textContent = POPULATION_SIZE.toString();
+
+  // Reset controls
+  toggleBtn.textContent = 'Initiate Test';
+}
+
+btnAward.addEventListener('click', () => saveCurrentBest('heaven'));
+btnDecommission.addEventListener('click', () => saveCurrentBest('hell'));
+
 window.addEventListener('keydown', (e) => {
   if (!isManualMode || game.isPaused) return;
-
   const player = game.dinos.find(d => (d as any).isManual);
   if (!player || !player.alive) return;
-
   if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
     player.jump();
     e.preventDefault();
@@ -148,10 +300,8 @@ window.addEventListener('keydown', (e) => {
 
 window.addEventListener('keyup', (e) => {
   if (!isManualMode || game.isPaused) return;
-
   const player = game.dinos.find(d => (d as any).isManual);
   if (!player || !player.alive) return;
-
   if (e.code === 'ArrowDown' || e.code === 'KeyS') {
     player.duck(false);
     e.preventDefault();
@@ -165,120 +315,8 @@ speedRange.addEventListener('input', () => {
 
 window.addEventListener('resize', () => game.resize());
 
-// Imports for utilities
-import { generateName } from './utils/names';
-import { StorageManager, type ModelData } from './utils/storage';
-
-// Existing DOM Elements
-// ...
-
-const saveBtn = document.getElementById('save-best')!;
-const leaderboardBody = document.querySelector('#leaderboard-table tbody')!;
-const emptyMsg = document.getElementById('empty-leaderboard-msg')!;
-
-// ...
-
-function renderLeaderboard() {
-  const models = StorageManager.getModels();
-  leaderboardBody.innerHTML = '';
-
-  if (models.length === 0) {
-    emptyMsg.classList.remove('hidden');
-    return;
-  }
-
-  emptyMsg.classList.add('hidden');
-  models.forEach(model => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${model.name}</td>
-      <td>${Math.round(model.score)}</td>
-      <td>${model.generation}</td>
-      <td>
-        <button class="action-btn load-btn" data-id="${model.id}">Load</button>
-        <button class="action-btn delete-btn" data-id="${model.id}">✕</button>
-      </td>
-    `;
-    leaderboardBody.appendChild(row);
-  });
-
-  // Attach event listeners to new buttons
-  document.querySelectorAll('.load-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const id = (e.target as HTMLElement).dataset.id!;
-      loadModel(id);
-    });
-  });
-
-  document.querySelectorAll('.delete-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const id = (e.target as HTMLElement).dataset.id!;
-      StorageManager.deleteModel(id);
-      renderLeaderboard();
-    });
-  });
-}
-
-function loadModel(id: string) {
-  const models = StorageManager.getModels();
-  const model = models.find(m => m.id === id);
-  if (!model) return;
-
-  const weights = model.weights;
-  const newPop = ga.loadGenome(weights, game.canvas.height);
-
-  game.isPaused = true;
-  game.reset();
-  game.dinos = [];
-  newPop.forEach(d => game.addDino(d));
-
-  // Set generation count to the saved model's generation or continue incrementing?
-  // Let's set it to the saved generation so user knows context
-  ga.generation = model.generation;
-  genCountEl.textContent = ga.generation.toString();
-
-  // Reset manual mode if active
-  if (isManualMode) {
-    isManualMode = false;
-    manualToggle.checked = false;
-    hintsEl.classList.add('hidden');
-    toggleBtn.textContent = 'Start Training';
-    genCountEl.parentElement!.style.visibility = 'visible';
-  }
-
-  game.isPaused = false;
-  toggleBtn.textContent = 'Pause';
-}
-
-saveBtn.addEventListener('click', () => {
-  // Find best dino
-  const bestDino = game.dinos.reduce((best, current) =>
-    (current.score > best.score) ? current : best
-    , game.dinos[0]);
-
-  if (!bestDino) return;
-
-  const weights = ga.getWeights(bestDino);
-  if (!weights) {
-    alert("Cannot save manual player or invalid dino.");
-    return;
-  }
-
-  const model: ModelData = {
-    id: Date.now().toString(),
-    name: generateName(),
-    score: bestDino.score, // Use current score as best score
-    generation: ga.generation,
-    timestamp: Date.now(),
-    weights: weights
-  };
-
-  StorageManager.saveModel(model);
-  renderLeaderboard();
-});
-
 // Initial Render
-renderLeaderboard();
+renderBoards();
 
 // Start the loop
 loop();

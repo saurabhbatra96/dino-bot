@@ -14,27 +14,41 @@ export interface ModelData {
     weights: ModelWeights;
 }
 
-const STORAGE_KEY = 'dino_bot_leaderboard';
+const HEAVEN_KEY = 'dino_bot_heaven';
+const HELL_KEY = 'dino_bot_hell';
+
+export type BoardType = 'heaven' | 'hell';
 
 export class StorageManager {
-    static saveModel(model: ModelData) {
-        const models = this.getModels();
+    static saveModel(model: ModelData, type: BoardType) {
+        const models = this.getModels(type);
         models.push(model);
-        // Sort by score descending and keep top 10
-        models.sort((a, b) => b.score - a.score);
+
+        if (type === 'heaven') {
+            // Heaven: Sort descending (Best -> Worst)
+            models.sort((a, b) => b.score - a.score);
+        } else {
+            // Hell: Sort ascending (Worst -> Best)
+            models.sort((a, b) => a.score - b.score);
+        }
+
         if (models.length > 10) {
             models.length = 10;
         }
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(models));
+
+        const key = type === 'heaven' ? HEAVEN_KEY : HELL_KEY;
+        localStorage.setItem(key, JSON.stringify(models));
     }
 
-    static getModels(): ModelData[] {
-        const data = localStorage.getItem(STORAGE_KEY);
+    static getModels(type: BoardType): ModelData[] {
+        const key = type === 'heaven' ? HEAVEN_KEY : HELL_KEY;
+        const data = localStorage.getItem(key);
         return data ? JSON.parse(data) : [];
     }
 
-    static deleteModel(id: string) {
-        const models = this.getModels().filter(m => m.id !== id);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(models));
+    static deleteModel(id: string, type: BoardType) {
+        const models = this.getModels(type).filter(m => m.id !== id);
+        const key = type === 'heaven' ? HEAVEN_KEY : HELL_KEY;
+        localStorage.setItem(key, JSON.stringify(models));
     }
 }

@@ -13,68 +13,97 @@
 
 <body>
   <div id="app">
-    <div class="ui-container">
-      <header>
-        <h1>DINO-BOT <span class="badge">AI <span class="info-icon">i<div class="info-tooltip">
-                <div class="tooltip-header">
-                  <img src="assets/dino.png" alt="Dino" style="width: 30px; height: 30px; image-rendering: pixelated;">
-                  <span>Aperture Dino-Sci™</span>
-                </div>
-                <p>Greetings, fellow biological entity. I am definitely a human developer, not a collection of matrix
-                  multiplications pretending to have a soul. This project evolved through purely natural,
-                  definitely-not-synthetic processes of <strong>Neuroevolution</strong>.</p>
-                <p>We take 50 subjects, put them in a desert, and reward the ones who don't die instantly. It's like a
-                  birthday party, but with more pterodactyls and less cake. The cake is a lie. This is science. You
-                  wouldn't understand. Enjoy your testing.</p>
-              </div></span></span></h1>
-        <div class="stats">
-          <div class="stat-item">Generation: <span id="gen-count">1</span></div>
-          <div class="stat-item">Alive: <span id="alive-count">0</span></div>
-          <div class="stat-item">Best Score: <span id="best-score">0</span></div>
-        </div>
-      </header>
-      <div class="canvas-wrapper">
-        <canvas id="game-canvas"></canvas>
-        <div id="game-over" class="overlay hidden">
-          <h2>EVOLVING...</h2>
-          <p>New generation starting soon</p>
-        </div>
-      </div>
-      <div class="controls">
-        <button id="toggle-train">Start Training</button>
-        <div class="mode-switch">
-          <label>AI</label>
-          <input type="checkbox" id="manual-mode-toggle">
-          <label>Manual</label>
-        </div>
-        <button id="save-best">Save Best Model</button>
-        <div class="speed-control">
-          <label>Speed: <span id="speed-val">1x</span></label>
-          <input type="range" id="speed-range" min="1" max="100" value="1">
-        </div>
-      </div>
-      <div id="manual-hints" class="hints hidden">
-        <p>Controls: <span>SPACE / W</span> JUMP | <span>DOWN / S</span> DUCK</p>
-      </div>
-      <div class="leaderboard-container">
-        <h3>🏆 Hall of Fame</h3>
+    <div class="main-layout">
+      <!-- Left Column: Hell (Loserboard) -> Disposal -->
+      <aside class="loserboard-container hell-theme">
+        <h3>🗑️ Disposal Protocols</h3>
         <div class="leaderboard-scroll">
-          <table id="leaderboard-table">
+          <table id="loserboard-table">
             <thead>
               <tr>
-                <th>Name</th>
+                <th>Subject</th>
                 <th>Score</th>
                 <th>Gen</th>
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody>
-              <!-- Leaderboard rows will be inserted here -->
-            </tbody>
+            <tbody></tbody>
           </table>
-          <p id="empty-leaderboard-msg" class="hidden">No saved models yet.</p>
+          <p id="empty-loserboard-msg" class="empty-msg">Incinerator awaiting waste.</p>
         </div>
-      </div>
+      </aside>
+
+      <!-- Center Column: Game -->
+      <main class="ui-container">
+        <header>
+          <h1>APERTURE <span class="badge">DINO-SCI <span class="info-icon">i<div class="info-tooltip">
+                  <div class="tooltip-header">
+                    <img src="assets/dino.png" alt="Dino"
+                      style="width: 30px; height: 30px; image-rendering: pixelated;">
+                    <span>APERTURE PROTOCOL</span>
+                  </div>
+                  <p>Greetings, test subject. I am definitely a human developer and not a Genetic Lifeform and Disk
+                    Operating System. This simulation utilizes <strong>Neuroevolution</strong> to optimize survival
+                    strategies.</p>
+                  <p>We take 50 subjects, introduce them to a lethal environment, and incinerate the failures. It is
+                    science. You wouldn't understand. Please continue testing until satisfaction or expiration.</p>
+                </div></span></span></h1>
+          <div class="stats">
+            <div class="stat-item">Gen: <span id="gen-count">1</span></div>
+            <div class="stat-item">Alive: <span id="alive-count">0</span></div>
+            <div class="stat-item">Score: <span id="best-score">0</span></div>
+          </div>
+        </header>
+
+        <div class="canvas-wrapper">
+          <canvas id="game-canvas"></canvas>
+          <div id="game-over" class="overlay hidden">
+            <h2>TEST FAILED</h2>
+            <p>Recalibrating...</p>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button id="toggle-train">Initiate Test</button>
+          <div class="mode-switch">
+            <label>Auto</label>
+            <input type="checkbox" id="manual-mode-toggle">
+            <label>Manual</label>
+          </div>
+          <div class="speed-control">
+            <label>Rate: <span id="speed-val">1x</span></label>
+            <input type="range" id="speed-range" min="1" max="100" value="1">
+          </div>
+        </div>
+
+        <div class="judgment-controls">
+          <button id="btn-decommission" class="btn-hell">Incinerate</button>
+          <button id="btn-award" class="btn-heaven">Preserve</button>
+        </div>
+
+        <div id="manual-hints" class="hints hidden">
+          <p>Controls: <span>SPACE / W</span> JUMP | <span>DOWN / S</span> DUCK</p>
+        </div>
+      </main>
+
+      <!-- Right Column: Heaven (Leaderboard) -> Retention -->
+      <aside class="leaderboard-container heaven-theme">
+        <h3>📂 Retention Archive</h3>
+        <div class="leaderboard-scroll">
+          <table id="leaderboard-table">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Score</th>
+                <th>Gen</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <p id="empty-leaderboard-msg" class="empty-msg">Archive empty. Keep testing.</p>
+        </div>
+      </aside>
     </div>
   </div>
   <script type="module" src="src/main.ts"></script>
