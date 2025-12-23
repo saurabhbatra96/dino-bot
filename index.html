@@ -105,8 +105,23 @@
         </div>
       </aside>
     </div>
-  </div>
-  <script type="module" src="src/main.ts"></script>
+    <div id="story-modal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="modal-title">FINAL INCINERATION LOG</span>
+          <span class="modal-personality" id="story-personality">The Reddit User</span>
+        </div>
+        <div class="modal-body">
+          <p id="story-content"></p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel-disabled" title="Option unavailable in this reality.">Cancel Incineration</button>
+          <button id="close-story" class="btn-hell">Initiate Incineration</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="src/main.ts"></script>
 </body>
 
 </html>

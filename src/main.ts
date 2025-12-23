@@ -2,6 +2,7 @@ import './style.css';
 import { Game } from './game/engine';
 import { GeneticAlgorithm } from './ai/ga';
 import { generateName } from './utils/names';
+import { getRandomTale } from './utils/tales';
 import { StorageManager, type ModelData } from './utils/storage';
 
 const POPULATION_SIZE = 50;
@@ -147,13 +148,17 @@ function renderSingleBoard(type: 'heaven' | 'hell') {
   msg.style.display = 'none';
   models.forEach(model => {
     const row = document.createElement('tr');
+    const loadBtnHtml = type === 'heaven'
+      ? `<button class="action-btn load-btn" data-id="${model.id}" data-type="${type}">Load</button>`
+      : '';
+
     row.innerHTML = `
         <td>${model.name}</td>
         <td>${Math.round(model.score)}</td>
         <td>${model.generation}</td>
         <td>
-            <button class="action-btn load-btn" data-id="${model.id}" data-type="${type}">Load</button>
-            <button class="action-btn delete-btn" data-id="${model.id}" data-type="${type}">✕</button>
+            ${loadBtnHtml}
+            <button class="action-btn delete-btn" data-id="${model.id}" data-type="${type}" data-name="${model.name}">✕</button>
         </td>
         `;
     tbody.appendChild(row);
@@ -171,11 +176,63 @@ function renderSingleBoard(type: 'heaven' | 'hell') {
   delBtns.forEach(btn => {
     (btn as HTMLElement).addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
-      StorageManager.deleteModel(target.dataset.id!, target.dataset.type as any);
-      renderBoards();
+      const id = target.dataset.id!;
+      const modelType = target.dataset.type as 'heaven' | 'hell';
+
+      if (modelType === 'hell') {
+        const tale = getRandomTale();
+        const pendingData = { id, name: target.dataset.name!, tale };
+        localStorage.setItem('aperture_pending_incineration', JSON.stringify(pendingData));
+        showStoryModal(pendingData.name, pendingData.tale.content, id);
+      } else {
+        StorageManager.deleteModel(id, modelType);
+        renderBoards();
+      }
     });
   });
 }
+
+function showStoryModal(name: string, content: string, id: string) {
+  const modal = document.getElementById('story-modal')!;
+  const contentEl = document.getElementById('story-content')!;
+  const personalityEl = document.getElementById('story-personality')!;
+
+  contentEl.textContent = content;
+  personalityEl.textContent = name;
+  personalityEl.style.textTransform = 'uppercase';
+  modal.classList.remove('hidden');
+
+  // Setup the "Incinerate" confirmation button
+  const closeBtn = document.getElementById('close-story')!;
+  const handleConfirm = () => {
+    StorageManager.deleteModel(id, 'hell');
+    localStorage.removeItem('aperture_pending_incineration');
+    renderBoards();
+    modal.classList.add('hidden');
+    closeBtn.removeEventListener('click', handleConfirm);
+  };
+  closeBtn.addEventListener('click', handleConfirm);
+
+  // Setup the fake "Cancel" button feedback
+  const cancelBtn = modal.querySelector('.btn-cancel-disabled');
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', () => {
+      cancelBtn.classList.add('denied-active');
+      setTimeout(() => cancelBtn.classList.remove('denied-active'), 2000);
+    });
+  }
+}
+
+function checkPendingIncineration() {
+  const saved = localStorage.getItem('aperture_pending_incineration');
+  if (saved) {
+    const data = JSON.parse(saved);
+    showStoryModal(data.name, data.tale.content, data.id);
+  }
+}
+
+// Call on startup
+checkPendingIncineration();
 
 function loadModel(id: string, type: 'heaven' | 'hell') {
   const models = StorageManager.getModels(type);

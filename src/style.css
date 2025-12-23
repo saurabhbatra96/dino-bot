@@ -52,8 +52,6 @@ body {
   gap: 15px;
 }
 
-/* ... (Keep existing header/stats styles as is, or updated below) ... */
-
 header {
   display: flex;
   justify-content: space-between;
@@ -95,14 +93,13 @@ header {
 }
 
 /* Board Panels */
-/* Board Panels */
 aside {
   background: #1e1e1e;
   border: 1px solid #333;
   height: 700px;
-  /* Matched to main game height */
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 aside h3 {
@@ -112,11 +109,11 @@ aside h3 {
   border-bottom: 2px solid;
   text-transform: uppercase;
   letter-spacing: 2px;
+  flex-shrink: 0;
 }
 
 .hell-theme {
   border-top: 4px solid var(--incinerator-red);
-  box-shadow: none;
   border-color: #333;
 }
 
@@ -124,12 +121,10 @@ aside h3 {
   background: #2a1111;
   color: var(--incinerator-red);
   border-color: var(--incinerator-red);
-  background-image: none;
 }
 
 .heaven-theme {
   border-top: 4px solid var(--aperture-orange);
-  box-shadow: none;
   border-color: #333;
 }
 
@@ -137,12 +132,13 @@ aside h3 {
   background: #2a1f11;
   color: var(--aperture-orange);
   border-color: var(--aperture-orange);
-  background-image: none;
 }
 
 .leaderboard-scroll {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
+  background: #1a1a1a;
 }
 
 .empty-msg {
@@ -159,31 +155,64 @@ table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.8rem;
+  background: #1a1a1a;
 }
 
 th,
 td {
-  padding: 10px;
+  padding: 12px 10px;
   text-align: left;
 }
 
 th {
   position: sticky;
   top: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: #222;
+  /* Solid background to mask scrolling text */
+  color: #aaa;
   font-size: 0.7rem;
-  z-index: 5;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #333;
+  z-index: 10;
 }
 
 td {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #ddd;
 }
 
-/* Buttons inside tables */
+tr:hover td {
+  background: #252525;
+}
+
+/* Action Buttons */
 .action-btn {
-  padding: 2px 6px;
+  padding: 4px 8px;
   font-size: 0.65rem;
-  margin: 0 2px;
+  margin: 2px;
+  background: transparent;
+  border: 1px solid #555;
+  color: #888;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  border-color: #fff;
+  color: #fff;
+}
+
+.delete-btn:hover {
+  border-color: var(--incinerator-red);
+  color: var(--incinerator-red);
+}
+
+.hidden {
+  display: none !important;
 }
 
 h1 {
@@ -282,7 +311,6 @@ h1 {
 .stat-item {
   font-size: 1rem;
   font-family: 'Courier New', Courier, monospace;
-  /* Dino-game style font */
   color: var(--text-muted);
 }
 
@@ -305,7 +333,6 @@ canvas {
   width: 100%;
   height: 400px;
   image-rendering: pixelated;
-  /* Crucial for pixel art */
 }
 
 .overlay {
@@ -454,94 +481,107 @@ input[type="range"] {
   font-family: 'Courier New', Courier, monospace;
 }
 
-/* Leaderboard Styles */
-
-.hidden {
-  display: none !important;
+/* Story Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
 }
 
-.leaderboard-container h3 {
+.modal-content {
+  background: #1e1e1e;
+  border-top: 4px solid var(--incinerator-red);
+  width: 90%;
+  max-width: 600px;
+  padding: 0;
+  box-shadow: 0 0 50px rgba(211, 47, 47, 0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
   padding: 15px 25px;
-  background: rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid var(--border-color);
-  font-size: 1.1rem;
-  letter-spacing: 1px;
+  background: #2a1111;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--incinerator-red);
 }
 
-.leaderboard-scroll {
-  max-height: 250px;
-  overflow-y: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
+.modal-title {
+  color: var(--incinerator-red);
+  font-weight: 700;
+  letter-spacing: 2px;
   font-size: 0.9rem;
 }
 
-th,
-td {
-  padding: 12px 15px;
-  text-align: left;
-}
-
-th {
-  background: rgba(0, 0, 0, 0.4);
-  color: var(--text-muted);
-  font-weight: 600;
-  text-transform: uppercase;
+.modal-personality {
+  color: #888;
   font-size: 0.75rem;
-  letter-spacing: 1px;
-  position: sticky;
-  top: 0;
+  font-style: italic;
+  font-family: 'Courier New', monospace;
 }
 
-td {
-  border-bottom: 1px solid rgba(60, 64, 67, 0.4);
-  color: var(--text-color);
+.modal-body {
+  padding: 30px;
+  max-height: 400px;
+  overflow-y: auto;
+  font-family: 'Courier New', Courier, monospace;
+  line-height: 1.6;
+  color: #ccc;
+  font-size: 0.95rem;
+  white-space: pre-wrap;
 }
 
-tr:last-child td {
-  border-bottom: none;
+.modal-footer {
+  padding: 15px 25px;
+  background: #151515;
+  border-top: 1px solid #333;
+  display: flex;
+  justify-content: flex-end;
 }
 
-tr:hover td {
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.action-btn {
-  background: transparent;
-  border: 1px solid var(--accent-color);
-  color: var(--accent-color);
-  padding: 4px 10px;
-  font-size: 0.75rem;
+.modal-footer button {
   width: auto;
-  margin-right: 5px;
+  padding: 10px 30px;
 }
 
-.action-btn:hover {
-  background: var(--accent-color);
-  color: #171717;
-  transform: none;
+.btn-cancel-disabled {
+  background: transparent !important;
+  color: #444 !important;
+  border: 1px solid #333 !important;
+  margin-right: auto;
+  cursor: not-allowed;
+  position: relative;
+  font-style: italic;
+  font-size: 0.7rem !important;
 }
 
-.delete-btn {
-  border-color: #f85149;
-  color: #f85149;
-}
-
-.delete-btn:hover {
-  background: #f85149;
-  color: white;
-}
-
-#empty-leaderboard-msg {
-  padding: 20px;
+.btn-cancel-disabled::after {
+  content: 'ACCESS DENIED';
+  position: absolute;
+  top: -20px;
+  left: 0;
+  width: 100%;
+  color: var(--incinerator-red);
+  font-size: 0.6rem;
+  letter-spacing: 1px;
   text-align: center;
-  color: var(--text-muted);
-  display: none;
+  font-style: normal;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
 }
 
-.hidden {
-  display: none !important;
+.btn-cancel-disabled.denied-active::after {
+  opacity: 0.8;
 }

@@ -2,18 +2,142 @@ export const adjectives = [
     'swift', 'dancing', 'flying', 'roaring', 'silent',
     'smart', 'jolly', 'brave', 'calm', 'wild',
     'eager', 'gentle', 'happy', 'proud', 'wise',
-    'fast', 'sneaky', 'bold', 'lucky', 'clever'
+    'fast', 'sneaky', 'bold', 'lucky', 'clever',
+    'acidic', 'agile', 'alert', 'ancient', 'aqueous',
+    'arid', 'atomic', 'azure', 'basic', 'bitter',
+    'blazing', 'bleak', 'blunt', 'brisk', 'brittle',
+    'busy', 'careful', 'casual', 'cavernous', 'central',
+    'chaotic', 'chilled', 'chronic', 'civil', 'classic',
+    'clean', 'clear', 'cloudy', 'coarse', 'cold',
+    'colorful', 'common', 'complex', 'constant', 'cool',
+    'cosmic', 'crisp', 'crude', 'cryptic', 'crystal',
+    'cyan', 'damp', 'dark', 'deadly', 'deep',
+    'dense', 'digital', 'dim', 'direct', 'distant',
+    'divine', 'diverse', 'double', 'drab', 'dry',
+    'dull', 'dusty', 'dynamic', 'early', 'earthy',
+    'easy', 'echoing', 'electric', 'elite', 'empty',
+    'endless', 'energetic', 'equal', 'essential', 'eternal',
+    'even', 'exact', 'exotic', 'expert', 'faint',
+    'fair', 'false', 'famous', 'fancy', 'fatal',
+    'fearless', 'federal', 'festive', 'fierce', 'final',
+    'fine', 'firm', 'first', 'fixed', 'flat',
+    'fluid', 'focal', 'formal', 'found', 'fragile',
+    'free', 'fresh', 'front', 'frosty', 'full',
+    'future', 'general', 'giant', 'glacial', 'glad',
+    'glistening', 'global', 'gloomy', 'glossy', 'golden',
+    'grand', 'gray', 'great', 'green', 'grim',
+    'gross', 'growing', 'gruff', 'halting', 'hard',
+    'harsh', 'hasty', 'healthy', 'heavy', 'hidden',
+    'high', 'hollow', 'honest', 'hot', 'humble',
+    'hungry', 'hyper', 'icy', 'ideal', 'idle',
+    'ill', 'image', 'impure', 'inner', 'instant',
+    'intense', 'iron', 'ivory', 'jade', 'jagged',
+    'jaunty', 'jealous', 'jumpy', 'just', 'keen',
+    'kind', 'known', 'large', 'last', 'late',
+    'lazy', 'leading', 'lean', 'legal', 'light',
+    'likely', 'linear', 'liquid', 'little', 'lively',
+    'local', 'lone', 'long', 'loose', 'loud',
+    'low', 'loyal', 'lucid', 'lunar', 'lush',
+    'mad', 'magic', 'main', 'major', 'marine',
+    'marked', 'massive', 'master', 'mature', 'mean',
+    'medium', 'mellow', 'melted', 'memory', 'mental',
+    'merry', 'metallic', 'micro', 'mighty', 'mild',
+    'milky', 'mini', 'minor', 'minty', 'misty',
+    'mixed', 'mobile', 'modern', 'modest', 'moist',
+    'mono', 'moody', 'mortal', 'mostly', 'moving',
+    'muddy', 'multi', 'mute', 'mystery', 'naked',
+    'named', 'narrow', 'native', 'nature', 'near',
+    'neat', 'nebula', 'negative', 'neon', 'neutral',
+    'new', 'next', 'nice', 'night', 'nimble',
+    'noble', 'noisy', 'normal', 'north', 'nostalgic',
+    'notable', 'noted', 'novel', 'numb', 'oak',
+    'obedient', 'obvious', 'ocean', 'odd', 'old',
+    'olympic', 'omega', 'only', 'open', 'optical',
+    'optimal', 'orange', 'orbit', 'order', 'organic',
+    'outer', 'oval', 'over', 'toxic', 'unstable',
+    'synthetic', 'clinical', 'industrial', 'aperture', 'biological',
+    'mechanical', 'residual', 'standard', 'experimental', 'calibrated'
 ];
 
 export const nouns = [
     'raptor', 'dino', 'eagle', 'macaw', 'tiger',
     'panda', 'wolf', 'fox', 'hawk', 'owl',
     'bear', 'lion', 'crane', 'shark', 'whale',
-    'runner', 'jumper', 'hunter', 'scout', 'pilot'
+    'runner', 'jumper', 'hunter', 'scout', 'pilot',
+    'agent', 'alpha', 'anchor', 'ant', 'apex',
+    'apollo', 'arc', 'archer', 'archive', 'area',
+    'arrow', 'aspect', 'asset', 'atlas', 'atom',
+    'audio', 'aura', 'auto', 'axis', 'badger',
+    'band', 'base', 'basin', 'bat', 'beam',
+    'beast', 'beetle', 'bell', 'belt', 'beta',
+    'bird', 'blade', 'blast', 'block', 'bloom',
+    'board', 'boat', 'body', 'bolt', 'bomb',
+    'bone', 'book', 'boot', 'boss', 'box',
+    'branch', 'brand', 'brass', 'bread', 'brick',
+    'bridge', 'brief', 'bright', 'bronze', 'brook',
+    'brush', 'bubble', 'bucket', 'bugle', 'bulb',
+    'bull', 'bundle', 'burn', 'bush', 'byte',
+    'cable', 'cage', 'cake', 'call', 'cam',
+    'camp', 'canal', 'cape', 'card', 'case',
+    'cash', 'cast', 'cave', 'cedar', 'cell',
+    'center', 'chain', 'chair', 'chalk', 'champ',
+    'charm', 'chart', 'check', 'chef', 'chest',
+    'chick', 'chief', 'child', 'chill', 'chip',
+    'choice', 'chord', 'chrome', 'chunk', 'circle',
+    'circuit', 'city', 'clan', 'class', 'claw',
+    'clay', 'click', 'cliff', 'climb', 'clip',
+    'clock', 'cloud', 'club', 'clutch', 'coach',
+    'coal', 'coast', 'coat', 'code', 'coil',
+    'coin', 'cold', 'colony', 'column', 'com',
+    'comet', 'command', 'common', 'comp', 'complex',
+    'cone', 'console', 'control', 'copper', 'core',
+    'corner', 'cosmic', 'craft', 'crane', 'crater',
+    'creek', 'crest', 'crew', 'cross', 'crown',
+    'crude', 'crust', 'crystal', 'cube', 'cult',
+    'cup', 'curve', 'cycle', 'cylinder', 'dagger',
+    'daily', 'dairy', 'daisy', 'dale', 'dam',
+    'dance', 'danger', 'dart', 'dash', 'data',
+    'date', 'dawn', 'day', 'dead', 'deal',
+    'dean', 'dear', 'death', 'debt', 'decal',
+    'deck', 'deep', 'deer', 'delta', 'demo',
+    'den', 'density', 'depth', 'desk', 'device',
+    'devil', 'dial', 'diary', 'dice', 'dig',
+    'digit', 'disk', 'diver', 'divide', 'doc',
+    'dock', 'doll', 'dome', 'door', 'dot',
+    'doubt', 'dove', 'down', 'draft', 'drain',
+    'dream', 'dress', 'drift', 'drill', 'drink',
+    'drive', 'drop', 'drum', 'dry', 'duck',
+    'duke', 'dune', 'dust', 'duty', 'dwarf',
+    'dye', 'dynamo', 'ear', 'earth', 'echo',
+    'edge', 'edit', 'eel', 'egg', 'elder',
+    'elite', 'ember', 'emblem', 'engine', 'entry',
+    'envoy', 'epic', 'epoch', 'equal', 'era',
+    'error', 'escape', 'essay', 'ether', 'ethics',
+    'event', 'ever', 'evil', 'exact', 'exam',
+    'excel', 'exit', 'expert', 'extra', 'subject',
+    'protocol', 'specimen', 'anomaly', 'parameter', 'variant',
+    'sequence', 'module', 'stratum', 'quantum', 'cipher'
+];
+
+export const suffixes = [
+    'v1', 'v2', 'v3', 'X', '99', '01', 'beta', 'alpha', 'mk1', 'mk2',
+    'pog', 'hype', 'flex', 'sus', 'cap', 'lit', 'edge', 'main', 'god', 'raw',
+    '⚡', '🔥', '💀', '👽', '👾', '🤖', '🦖', '☢️', '🧪', '💎',
+    '✨', '🎯', '🚀', '🧬', '💾', '⛓️', '🛡️', '⚔️', '🛰️', '🪐',
+    '777', '666', '1337', '420', 'XP', 'OS', 'SYS', 'EXE', 'BIN', 'DEV'
 ];
 
 export function generateName(): string {
     const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
     const noun = nouns[Math.floor(Math.random() * nouns.length)];
-    return `${adj}_${noun}`;
+
+    let name = `${adj}_${noun}`;
+
+    // 40% chance of adding a suffix
+    if (Math.random() < 0.4) {
+        const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+        name += `_${suffix}`;
+    }
+
+    return name;
 }
