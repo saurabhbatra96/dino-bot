@@ -8,9 +8,9 @@ const loadAsset = (name: string, path: string) => {
   assets[name] = img;
 };
 
-loadAsset('dino', '/assets/dino.png');
-loadAsset('cactus', '/assets/cactus.png');
-loadAsset('bird', '/assets/bird.png');
+loadAsset('dino', 'assets/dino.png');
+loadAsset('cactus', 'assets/cactus.png');
+loadAsset('bird', 'assets/bird.png');
 
 export class Dino {
   x: number = 50;
