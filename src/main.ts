@@ -277,6 +277,7 @@ function loadModel(id: string, type: 'heaven' | 'hell') {
     manualToggle.checked = false;
     hintsEl.classList.add('hidden');
     genCountEl.parentElement!.style.visibility = 'visible';
+    speedRange.disabled = false;
   }
 
   toggleBtn.textContent = 'Resume';
@@ -300,6 +301,12 @@ manualToggle.addEventListener('change', () => {
     hintsEl.classList.remove('hidden');
     toggleBtn.textContent = 'Start Play';
     genCountEl.parentElement!.style.visibility = 'hidden';
+
+    // Lock speed to 1x
+    simSpeed = 1;
+    speedRange.value = "1";
+    speedRange.disabled = true;
+    speedValEl.textContent = "1x";
   } else {
     const nextGen = ga.createInitialPopulation(game.canvas.height);
     nextGen.forEach(d => game.addDino(d));
@@ -307,6 +314,9 @@ manualToggle.addEventListener('change', () => {
     toggleBtn.textContent = 'Start Training';
     genCountEl.parentElement!.style.visibility = 'visible';
     genCountEl.textContent = ga.generation.toString();
+
+    // Re-enable speed control
+    speedRange.disabled = false;
   }
   overlayEl.classList.add('hidden');
 });
